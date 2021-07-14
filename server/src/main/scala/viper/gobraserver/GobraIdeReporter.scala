@@ -81,7 +81,7 @@ case class GobraIdeReporter(name: String = "gobraide_reporter",
 
     new Diagnostic(new Range(startPos, endPos), error.message.split("Possible counterexample:").head, DiagnosticSeverity.Error, "")
   }
-  private def counterexampleToDiagnostic(counter: GobraCounterexample, error: String): Vector[Diagnostic] = {
+  private def counterexampleToDiagnostic(counter: GobraCounterexample, errorSource: Source.Verifier.Info): Vector[Diagnostic] = {
     counter match {
       case c:viper.gobra.reporting.GobraCounterexample => c.reducedCounterexample.entries.map(
                                           y => {val pos = y._1._1.origin.pos;
@@ -90,7 +90,7 @@ case class GobraIdeReporter(name: String = "gobraide_reporter",
                                                                          ),
                                                                 y._2.toString(),
                                                                 DiagnosticSeverity.Hint,
-                                                                "\nCounterexample for " + error +( if(y._1._1.pnode.toString.contains(' ')) " (old)" else "")
+                                                                "\nCounterexample for " + errorSource.origin.pos.toString +( if(y._1._1.pnode.toString.contains(' ')) " (old)" else "")
                                                  )}
                                           ).toSet.toVector
       case _ => Vector()
@@ -111,7 +111,7 @@ case class GobraIdeReporter(name: String = "gobraide_reporter",
         diagnosticsCache.getOrElse(err, throw GobraServerCacheInconsistentException()))
 
       val nonCachedDiagnostics = nonCachedErrors.flatMap(err => errorToDiagnostic(err) +:
-         (if(err.isInstanceOf[VerificationError] && err.asInstanceOf[VerificationError].counterexample.isDefined) counterexampleToDiagnostic(err.asInstanceOf[VerificationError].counterexample.get,err.id) else Nil))
+         (err match{case e: VerificationError if(e.counterexample.isDefined) => counterexampleToDiagnostic(e.counterexample.get, e.info) ; case _ => Nil }))
 
       // Filechanges which happened during the verification
       val fileChanges = VerifierState.changes.filter(_._1 == fileUri).flatMap(_._2)
