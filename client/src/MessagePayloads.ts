@@ -23,11 +23,11 @@ export class VerifierConfig {
   gobraSettings: GobraSettings;
   z3Executable: string;
   boogieExecutable: string;
-
+  counterexample:boolean;
   constructor(location: Location) {
     this.fileData = new FileData();
     this.gobraSettings = Helper.getGobraSettings();
-
+    this.counterexample=true;
     this.z3Executable = Helper.getZ3Path(location);
     this.boogieExecutable = Helper.getBoogiePath(location);
   }
@@ -62,6 +62,7 @@ export interface GobraSettings {
   parseOnly: boolean;
   loglevel: string;
   backend: string;
+  counterexample: boolean;
 }
 
 export interface JavaSettings {

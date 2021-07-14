@@ -23,7 +23,8 @@ case class GobraSettings (
   printInternal: Boolean,
   printViper: Boolean,
   parseOnly: Boolean,
-  logLevel: String
+  logLevel: String,
+  counterexample: Boolean
 )
 
 case class VerifierConfig (

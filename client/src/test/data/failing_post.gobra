@@ -3,8 +3,29 @@
 
 package test
 
-ensures false
-func test() (res int) {
-	res = 42
+ensures ret < 5
+ensures res < ret
+requires (i < 3 && ts.y == i)
+func test(i, j int, s bool,ts struct{x,y int}) (res,ret int) {
+	names := [3]string{"Rob","Charlie","Glenn"}
+	assert(names[1]=="Charlie")
+	assert(names[0]=="Rob")
+	assert(names[2]=="Dennis")
+	t@ := 10
+	p := &t
+	z := "hello world"
+	if(s){
+		res = j
+		ret = i
+		s = false
+		return
+	}
+	res = i
+	i = i + 2
+	*p = 2
+	ret = i + t 
+	z = "nope"
+	//assert (i > 4)
+	
 	return
 }

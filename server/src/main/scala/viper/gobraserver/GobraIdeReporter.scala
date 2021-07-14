@@ -13,6 +13,7 @@ import org.apache.commons.io.FileUtils
 import org.eclipse.lsp4j.{Diagnostic, DiagnosticSeverity, Position, Range}
 import viper.gobra.backend.ViperBackend
 import viper.gobra.reporting._
+import viper.gobra.reporting.GobraCounterexample
 import viper.gobra.util.{GobraExecutionContext, OutputUtil}
 import viper.gobraserver.backend.ViperServerBackend
 import viper.silver.logger.ViperLogger
@@ -78,7 +79,22 @@ case class GobraIdeReporter(name: String = "gobraide_reporter",
       case None => startPos
     }
 
-    new Diagnostic(new Range(startPos, endPos), error.message, DiagnosticSeverity.Error, "")
+    new Diagnostic(new Range(startPos, endPos), error.message.split("Possible counterexample:").head, DiagnosticSeverity.Error, "")
+  }
+  private def counterexampleToDiagnostic(counter: GobraCounterexample, error: String): Vector[Diagnostic] = {
+    counter match {
+      case c:viper.gobra.reporting.GobraCounterexample => c.reducedCounterexample.entries.map(
+                                          y => {val pos = y._1._1.origin.pos;
+                                                 new Diagnostic(new Range(new Position(pos.start.line-1 ,pos.start.column - 1),
+                                                                         new Position(pos.end.getOrElse(pos.start).line - 1 , pos.end.getOrElse(pos.start).column -1 )
+                                                                         ),
+                                                                y._2.toString(),
+                                                                DiagnosticSeverity.Hint,
+                                                                "\nCounterexample for " + error +( if(y._1._1.pnode.toString.contains(' ')) " (old)" else "")
+                                                 )}
+                                          ).toSet.toVector
+      case _ => Vector()
+    }
   }
 
   private def updateDiagnostics(result: VerifierResult): Unit = result match {
@@ -94,7 +110,8 @@ case class GobraIdeReporter(name: String = "gobraide_reporter",
       val cachedDiagnostics = cachedErrors.map(err =>
         diagnosticsCache.getOrElse(err, throw GobraServerCacheInconsistentException()))
 
-      val nonCachedDiagnostics = nonCachedErrors.map(err => errorToDiagnostic(err))
+      val nonCachedDiagnostics = nonCachedErrors.flatMap(err => errorToDiagnostic(err) +:
+         (if(err.isInstanceOf[VerificationError] && err.asInstanceOf[VerificationError].counterexample.isDefined) counterexampleToDiagnostic(err.asInstanceOf[VerificationError].counterexample.get,err.id) else Nil))
 
       // Filechanges which happened during the verification
       val fileChanges = VerifierState.changes.filter(_._1 == fileUri).flatMap(_._2)

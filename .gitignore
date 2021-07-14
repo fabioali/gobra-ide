@@ -1,1 +1,6 @@
 .DS_Store
+project/target/
+tmp/
+hs_err*
+.metals
+.bsp

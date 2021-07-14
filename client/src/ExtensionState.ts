@@ -94,15 +94,15 @@ export class State {
     // const prefix = __dirname.split("client")[0];
     // const serverBin = path.join(prefix, 'server', 'target', 'scala-2.12', 'server.jar')
 
-    const serverOptions: ServerOptions = () => State.startServerProcess(location, serverBin);
+    //const serverOptions: ServerOptions = () => State.startServerProcess(location, serverBin);
     // use the following lines to connect to a server instance instead of starting a new one (e.g. for debugging purposes)
-    /*
+    
     const connectionInfo = {
       host: "localhost",
       port: 8080
     }
     const serverOptions: ServerOptions = () => State.connectToServer(location, connectionInfo);
-    */
+    
 
     // server binary was not found
     if (!fs.existsSync(serverBin)) {

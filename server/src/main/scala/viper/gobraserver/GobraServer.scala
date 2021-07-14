@@ -73,13 +73,15 @@ object GobraServer extends GobraFrontend {
   private def serverExceptionHandling(fileData: FileData, resultFuture: Future[VerifierResult])(implicit executor: GobraExecutionContext): Future[VerifierResult] = {
 
     val fileUri = fileData.fileUri
-
+    
     // do some post processing if verification has failed
     resultFuture.transformWith {
       case Success(res) =>
         _server.logger.get.trace(s"GobraServer: verification was successful: $res")
+        printf(res.toString())
         Future.successful(res)
       case Failure(exception) =>
+        
         // restart Gobra Server and then update client state
         // ignore result of restart and inform the client:
         restart().transformWith(_ => {
@@ -129,7 +131,7 @@ object GobraServer extends GobraFrontend {
     val startTime = System.currentTimeMillis()
 
     val config = Helper.verificationConfigFromTask(verifierConfig, startTime, verify = false, logger = _server.logger)(executor)
-    val preprocessFuture = verifier.verify(config)(executor)
+    val preprocessFuture = verifier.verify(config.copy(counterexample = Some(viper.gobra.reporting.CounterexampleConfigs.MappedCounterexamples)))(executor)
 
     serverExceptionHandling(verifierConfig.fileData, preprocessFuture)
   }
@@ -189,7 +191,7 @@ object GobraServer extends GobraFrontend {
     val completedProgress = (100 * (1 - Helper.defaultVerificationFraction)).toInt
     val config = Helper.verificationConfigFromTask(verifierConfig, startTime, verify = true, completedProgress, logger = _server.logger)(executor)
 
-    val resultFuture = verifier.verifyAst(config, ast, backtrack)(executor)
+    val resultFuture = verifier.verifyAst(config.copy(counterexample = Some(viper.gobra.reporting.CounterexampleConfigs.MappedCounterexamples)), ast, backtrack)(executor)
 
     serverExceptionHandling(verifierConfig.fileData, resultFuture)
   }

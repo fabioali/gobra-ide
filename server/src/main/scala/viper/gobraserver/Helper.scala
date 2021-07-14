@@ -25,7 +25,7 @@ object Helper {
     config match {
       case VerifierConfig(
         FileData(path, fileUri),
-        GobraSettings(backendId, serverMode, debug, eraseGhost, goify, unparse, printInternal, printViper, parseOnly, logLevel),
+        GobraSettings(backendId, serverMode, debug, eraseGhost, goify, unparse, printInternal, printViper, parseOnly, logLevel,counterexample),
         z3Exe,
         boogieExe
       ) =>
@@ -38,7 +38,8 @@ object Helper {
 
         val backend =
           if (serverMode) {
-            ViperServerBackend
+            ViperBackends.SiliconBackend
+            //ViperServerBackend
           } else {
             backendId match {
               case "SILICON" => ViperBackends.SiliconBackend
@@ -73,6 +74,9 @@ object Helper {
             backendId match {
               case "SILICON" =>
                 //var options: List[String] = List()
+                if(counterexample){
+                  options ++= Vector("--counterexample","mapped")
+                }
                 options ++= Vector("--logLevel", "ERROR")
                 options ++= Vector("--disableCatchingExceptions")
                 options ++= Vector("--enableMoreCompleteExhale")

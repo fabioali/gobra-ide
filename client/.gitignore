@@ -10,3 +10,7 @@ evaluationFiles/
 .vscode-test/
 logger.log
 tmp/
+.nyc_output
+.metals
+coverage
+.vscode

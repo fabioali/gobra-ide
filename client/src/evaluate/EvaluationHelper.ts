@@ -81,4 +81,5 @@ class EvaluationGobraSettings implements GobraSettings {
   parseOnly: boolean = false;
   loglevel: string = "OFF";
   backend: string = "SILICON";
+  counterexample: boolean=true;
 }
