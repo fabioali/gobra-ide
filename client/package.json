@@ -309,9 +309,9 @@
           "default": true,
           "description": "Enable Auto Verification of Gobra files."
         },
-        "gobraSettings.counterexample":{
+        "gobraSettings.counterexample": {
           "scope": "window",
-          "type":"boolean",
+          "type": "boolean",
           "default": true,
           "description": "Enable Counterexamples"
         },
@@ -364,35 +364,6 @@
           }
         }
       }
-    },
-    "breakpoints": [
-      {
-        "language": "gobra"
-      },{
-        "language": "go"
-      }
-    ],
-    
-    "debuggers": [
-      {
-        "type": "gobra",
-        "label": "Gobra debugger",
-        "program": "./src/debugger.js",
-        "runtime": "node",
-        "configurationAttributes": {
-          "launch":{
-            "required": ["program"],
-            "properties": {
-              "stopOnEntry": {
-                "type": "boolean",
-                "description": "Stop after launch",
-                "default": true
-
-              }
-            }
-          }
-        }
-      }
-    ]
+    }
   }
 }
