@@ -74,9 +74,9 @@ object Helper {
             backendId match {
               case "SILICON" =>
                 //var options: List[String] = List()
-                if(counterexample){
+                /* if(counterexample){
                   options ++= Vector("--counterexample","mapped")
-                }
+                } */
                 options ++= Vector("--logLevel", "ERROR")
                 options ++= Vector("--disableCatchingExceptions")
                 options ++= Vector("--enableMoreCompleteExhale")
@@ -112,7 +112,8 @@ object Helper {
           shouldTypeCheck = shouldTypeCheck,
           shouldDesugar = shouldDesugar,
           shouldViperEncode = shouldViperEncode,
-          shouldVerify = shouldVerify
+          shouldVerify = shouldVerify,
+          counterexample = if(counterexample) Some(viper.gobra.reporting.CounterexampleConfigs.MappedCounterexamples) else None
         )
     }
   }

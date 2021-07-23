@@ -191,7 +191,7 @@ object GobraServer extends GobraFrontend {
     val completedProgress = (100 * (1 - Helper.defaultVerificationFraction)).toInt
     val config = Helper.verificationConfigFromTask(verifierConfig, startTime, verify = true, completedProgress, logger = _server.logger)(executor)
 
-    val resultFuture = verifier.verifyAst(config.copy(counterexample = Some(viper.gobra.reporting.CounterexampleConfigs.MappedCounterexamples)), ast, backtrack)(executor)
+    val resultFuture = verifier.verifyAst(config, ast, backtrack)(executor)
 
     serverExceptionHandling(verifierConfig.fileData, resultFuture)
   }
