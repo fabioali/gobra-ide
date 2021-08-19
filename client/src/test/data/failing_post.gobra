@@ -3,23 +3,25 @@
 
 package test
 
-ensures ret < 5
+ensures ret < 6 || res == 0
 ensures res < ret
-requires (i < 3 && ts.y == i)
+requires (i < 3 && ts.y == i && ! s)
 func test(i, j int, s bool,ts struct{x,y int}) (res,ret int) {
 	names := [3]string{"Rob","Charlie","Glenn"}
 	assert(names[1]=="Charlie")
 	assert(names[0]=="Rob")
-	assert(names[2]=="Dennis")
+	//assert(names[2]=="Dennis")
 	t@ := 10
 	p := &t
 	z := "hello world"
+	kek:
 	if(s){
 		res = j
 		ret = i
 		s = false
 		return
 	}
+	//newvat := ts
 	res = i
 	i = i + 2
 	*p = 2

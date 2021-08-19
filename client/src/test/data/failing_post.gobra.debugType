@@ -1,0 +1,31 @@
+package test
+
+
+requires i (:: InParameter) < 3 && ts (:: InParameter).y (:: Field) == i (:: InParameter) && !s (:: InParameter)
+ensures ret (:: OutParameter) < 6 || res (:: OutParameter) == 0
+ensures res (:: OutParameter) < ret (:: OutParameter)
+func test (:: Function)(i (:: InParameter) int, j (:: InParameter) int, s (:: InParameter) bool, ts (:: InParameter) struct {
+  x (:: Field), y (:: Field) int
+}) (res (:: OutParameter) int, ret (:: OutParameter) int) {
+  names (:: SingleLocalVariable) := [3]string { "Rob", "Charlie", "Glenn" }
+  assert names (:: SingleLocalVariable)[1] == "Charlie"
+  assert names (:: SingleLocalVariable)[0] == "Rob"
+  @t (:: SingleLocalVariable) := 10
+  p (:: SingleLocalVariable) := &t (:: SingleLocalVariable)
+  z (:: SingleLocalVariable) := "hello world"
+  if s (:: InParameter) {
+    res (:: OutParameter) = j (:: InParameter)
+    ret (:: OutParameter) = i (:: InParameter)
+    s (:: InParameter) = false
+    return 
+    
+  }
+  res (:: OutParameter) = i (:: InParameter)
+  i (:: InParameter) = i (:: InParameter) + 2
+  *p (:: SingleLocalVariable) = 2
+  ret (:: OutParameter) = i (:: InParameter) + t (:: SingleLocalVariable)
+  z (:: SingleLocalVariable) = "nope"
+  return 
+  
+}
+

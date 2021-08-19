@@ -80,47 +80,38 @@ case class GobraIdeReporter(name: String = "gobraide_reporter",
       case None => startPos
     }
     val msg = error.message.split("Possible counterexample:").head
-    val additaionalInfo = (try {val err = error.asInstanceOf[VerificationError] ;"Counterexample:\n" + counterSeqToString(err.counterexample.get.getRelevantEntries(err.info.pnode))} catch {case _:Throwable => ""} )
+    val additionalInfo = (try {val err = error.asInstanceOf[VerificationError] ;
+                                val relevant = err.counterexample.get.getRelevantEntries(err.info.pnode)
+                                val irrelevant = err.counterexample.get.getIrrelevantEntries(err.info.pnode)
+      "Counterexample:\n" + counterSeqToString(relevant) + (if(irrelevant.size !=0)   ("\n ------\n" + counterSeqToString(irrelevant)) else "")
+                          } catch {case _:Throwable => ""} )
 
-    new Diagnostic(new Range(startPos, endPos), msg, DiagnosticSeverity.Error, s"$additaionalInfo")
+    new Diagnostic(new Range(startPos, endPos), msg, DiagnosticSeverity.Error, s"$additionalInfo")
   }
   private def counterexampleToDiagnostic(counter: GobraCounterexample, errorSource: Source.Verifier.Info): Vector[Diagnostic] = {
     counter match {
-      case c:viper.gobra.reporting.GobraCounterexample => c.reducedCounterexample.entries.toSeq/* .filter(_._1._1.pnode.isInstanceOf[ast.PParameter]) */.collect(
+      case c:viper.gobra.reporting.GobraCounterexample => c.reducedCounterexample.entries.toSeq.collect(
                                           y => {
                                                 val pos = y._1._1.origin.pos;
                                                 val message = "\nCounterexample for " + errorSource.origin.pos.toString
-                                                //if(y._1._1.pnode.toString.contains(' ')) 
                                                 Some(new Diagnostic(new Range(new Position(pos.start.line-1 ,pos.start.column - 1),
                                                                          new Position(pos.end.getOrElse(pos.start).line - 1 , pos.end.getOrElse(pos.start).column -1 )
                                                                          ),
                                                                 y._2.toString(),
                                                                 DiagnosticSeverity.Hint,
                                                                 message
-                                                )) /* else None */} match {case Some(x) => x}
+                                                ))} match {case Some(x) => x}
                                           ).toSet.toVector
       case _ => Vector()
     }
   }
-  private def counterSeqToString(values: Seq[((Source.Verifier.Info,String),GobraModelEntry)]): String ={
+  private def counterSeqToString(values: Seq[((Source.Verifier.Info, String), GobraModelEntry)]): String ={
       values.map(x=> 
         x._1._1.pnode.toString.split(" ").head +
          " <- " +
           x._2.toString()
           + (if(x._1._1.pnode.isInstanceOf[ast.PNamedParameter]) " (At entry/return)" else s"")
         ).mkString("\n")
-  }
-  private def assertionDiagnostic(variable: ast.PNode, errorSource: Source.Verifier.Info): Option[Range] = {
-    val pos = errorSource.origin.pos
-    val startLine = pos.start.line - 1
-    val endline  = pos.end.getOrElse(pos.start).line - 1
-    val startCol = pos.start.column -1 
-    val endCol = pos.end.getOrElse(pos.start).column -1
-    None//getAllSubNodes(errorSource.pnode).find(_.toString == variable).map(new Range())
-  }
-  private def getAllSubNodes(pnode: ast.PNode) : Vector[ast.PNode] = {
-    //TODO find all subnodes
-    Vector()
   }
 
   private def updateDiagnostics(result: VerifierResult): Unit = result match {

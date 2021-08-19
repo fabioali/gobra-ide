@@ -37,9 +37,10 @@ object Helper {
         val shouldVerify = shouldViperEncode && verify
 
         val backend =
-          if (serverMode) {
+          if(counterexample)// counterexamples are only supported in Silicon at this point
             ViperBackends.SiliconBackend
-            //ViperServerBackend
+          else if (serverMode) { 
+            ViperServerBackend
           } else {
             backendId match {
               case "SILICON" => ViperBackends.SiliconBackend
@@ -74,9 +75,6 @@ object Helper {
             backendId match {
               case "SILICON" =>
                 //var options: List[String] = List()
-                /* if(counterexample){
-                  options ++= Vector("--counterexample","mapped")
-                } */
                 options ++= Vector("--logLevel", "ERROR")
                 options ++= Vector("--disableCatchingExceptions")
                 options ++= Vector("--enableMoreCompleteExhale")
